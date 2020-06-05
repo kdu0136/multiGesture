@@ -1,0 +1,3 @@
+include ':viewZoom'
+include ':app'
+rootProject.name = "ViewZoomApplication"
