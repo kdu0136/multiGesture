@@ -30,7 +30,7 @@ class GestureCopyView@JvmOverloads constructor(context: Context,
     private val DOUBLE_TAP_ZOOM_DURATION = 200
     private var scaleFactor = 1f // zoom scale 값
     private val minScaleFactor = 1f // min 줌 값
-    private var maxScaleFactor = 2f // max 줌 값
+    private var maxScaleFactor = 3f // max 줌 값
 
     private val gestureListener: SimpleOnGestureListener = object: SimpleOnGestureListener() {
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
