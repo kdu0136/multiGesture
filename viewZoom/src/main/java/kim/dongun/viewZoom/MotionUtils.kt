@@ -39,4 +39,14 @@ fun PointF.midPointOfEvent(event: MotionEvent) {
     }
 }
 
+fun PointF.midPointOfEvent(sp: PointF, fp: PointF?) {
+    if (fp == null) {
+        set(sp.x, sp.y)
+    } else {
+        val x = sp.x + fp.x
+        val y = sp.y + fp.y
+        set(x / 2, y / 2)
+    }
+}
+
 val Float.pxToSp: Int get() = (this / Resources.getSystem().displayMetrics.scaledDensity).roundToInt()
