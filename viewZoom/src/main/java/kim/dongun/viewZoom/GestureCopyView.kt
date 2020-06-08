@@ -2,16 +2,15 @@ package kim.dongun.viewZoom
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.graphics.PointF
 import android.util.AttributeSet
 import android.util.Log
-import android.view.GestureDetector
+import android.view.*
 import android.view.GestureDetector.SimpleOnGestureListener
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.widget.FrameLayout
+import androidx.cardview.widget.CardView
 import kotlin.math.*
 
 class GestureCopyView @JvmOverloads constructor(
@@ -24,14 +23,27 @@ class GestureCopyView @JvmOverloads constructor(
     private val minScaleFactor = 1f // min 줌 값
     private var maxScaleFactor = 2f // max 줌 값
 
+    private val mainView: CardView by lazy { findViewById<CardView>(R.id.mainLayout) }
+
     init {
         val view = LayoutInflater.from(context).inflate(R.layout.text_tag, this, false)
         addView(view)
+        val params = view.layoutParams as FrameLayout.LayoutParams
+        params.gravity = Gravity.CENTER
+
+        setBackgroundColor(Color.BLACK)
+
+        cal()
     }
 
     private val gestureListener: SimpleOnGestureListener = object : SimpleOnGestureListener() {
         override fun onSingleTapUp(e: MotionEvent?): Boolean {
-            Log.d("Test/Log", "View Coordinate ($x, $y)")
+//            val location = intArrayOf(0, 0)
+//            getLocationOnScreen(location)
+//            Log.d("Test/Log", "(${location[0]}, ${location[1]})")
+            Log.d("Test/Log", "(${mainView.width}, ${mainView.height}), rotation: $rotation")
+//            Log.d("Test/Log", "initMidPoint (${oldMidPoint.x}, ${oldMidPoint.y})")
+//            Log.d("Test/Log", "midPoint (${midPoint.x}, ${midPoint.y})")
             return super.onSingleTapUp(e)
         }
 
@@ -46,8 +58,10 @@ class GestureCopyView @JvmOverloads constructor(
             e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float
         ): Boolean {
             if (status == Status.ONE_POINT || status == Status.TWO_POINT) { // action 상태가 zoom 일 경우 zoomable view 위치 이동
-                this@GestureCopyView.x += midPoint.x - initMidPoint.x
-                this@GestureCopyView.y += midPoint.y - initMidPoint.y
+//                Log.d("Test/Log", "initMidPoint (${oldMidPoint.x}, ${oldMidPoint.y})")
+//                Log.d("Test/Log", "midPoint (${midPoint.x}, ${midPoint.y})")
+                this@GestureCopyView.x += midPoint.x - oldMidPoint.x
+                this@GestureCopyView.y += midPoint.y - oldMidPoint.y
             }
             return false
         }
@@ -72,11 +86,38 @@ class GestureCopyView @JvmOverloads constructor(
             override fun onRotation(rotationDetector: RotationGestureDetector?): Boolean {
                 if (rotationDetector != null && status == Status.TWO_POINT) {
 //                    Log.d("Test/Log", rotationDetector.getAngle().toString())
-                    rotation = startRot - rotationDetector.getAngle()
+//                    mainView.rotation = startRot - rotationDetector.getAngle()
+                    mainView.rotation = startRot - rotationDetector.getAngle()
+//                    Log.d("Test/Log", "mainView size (${mainView.width}, ${mainView.height})")
+//                    cal()
                 }
                 return false
             }
         }
+
+    private fun cal() {
+        mainView.post {
+            val rotation = 45f
+            Log.d("Test/Log", "(${mainView.width}, ${mainView.height}), rotation: $rotation")
+
+            val w = (mainView.width * cos(rotation)) +
+                    (mainView.height * cos(90 - rotation))
+
+            val h = (mainView.width * sin(rotation)) +
+                    (mainView.height * sin(90 - rotation))
+
+            val max = sqrt(mainView.width.toDouble().pow(2) + mainView.height.toDouble().pow(2)).toInt()
+
+//            val max = abs(floor(max(mainView.width.toDouble() * 1.1, mainView.height.toDouble() * 1.1))).toInt()
+
+            Log.d("Test/Log", "new ($w, $h), rotation: $rotation, max: $max")
+
+            val params = layoutParams
+            params.width = max
+            params.height = max
+            layoutParams = params
+        }
+    }
 
     private val gestureDetector: GestureDetector by lazy {
         GestureDetector(
@@ -100,10 +141,10 @@ class GestureCopyView @JvmOverloads constructor(
         )
     }
 
-    private val initMidPoint: PointF = PointF()
+    private val oldMidPoint: PointF = PointF()
     private val midPoint: PointF = PointF()
 
-    var isRotateEnabled: Boolean = false
+    var isRotateEnabled: Boolean = true
     var isScaleEnabled: Boolean = true
 
     enum class Status { IDLE, ONE_POINT, TWO_POINT }
@@ -112,48 +153,52 @@ class GestureCopyView @JvmOverloads constructor(
 
     private var startRot: Float = 0f
 
-    private val INVALID_POINTER_INDEX = -1
-    private var ptrId1: Int = INVALID_POINTER_INDEX
-    private var ptrId2: Int = INVALID_POINTER_INDEX
+//    private val INVALID_POINTER_INDEX = -1
+//    private var ptrId1: Int = INVALID_POINTER_INDEX
+//    private var ptrId2: Int = INVALID_POINTER_INDEX
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         event?.run {
             if (event.pointerCount > 2) return true
 
+            if (isScaleEnabled)
+                scaleDetector.onTouchEvent(this)
+
+            if (isRotateEnabled)
+                rotateDetector.onTouchEvent(this)
+
             when (action and MotionEvent.ACTION_MASK) {
                 MotionEvent.ACTION_DOWN -> {
-                    ptrId1 = event.getPointerId(event.actionIndex)
+//                    ptrId1 = event.getPointerId(event.actionIndex)
                     status = Status.ONE_POINT
 
 //                    val startFinger = PointF()
 //                    getRawPoint(event = event, index = ptrId1, point = startFinger)
-//                    initMidPoint.midPointOfEvent(sp = startFinger, fp = null)
+//                    oldMidPoint.midPointOfEvent(sp = startFinger, fp = null)
 
-                    initMidPoint.midPointOfEvent(this)
+                    oldMidPoint.midPointOfEvent(this)
                 }
                 MotionEvent.ACTION_POINTER_DOWN -> {
+//                    ptrId2 = event.getPointerId(event.actionIndex)
                     status = Status.TWO_POINT
-                    ptrId2 = event.getPointerId(event.actionIndex)
 
 //                    val startFinger = PointF()
 //                    val finishFinger = PointF()
 //
 //                    getRawPoint(event = event, index = ptrId1, point = startFinger)
 //                    getRawPoint(event = event, index = ptrId2, point = finishFinger)
-//                    initMidPoint.midPointOfEvent(sp = startFinger, fp = finishFinger)
+//                    oldMidPoint.midPointOfEvent(sp = startFinger, fp = finishFinger)
 
-                    initMidPoint.midPointOfEvent(this)
+                    oldMidPoint.midPointOfEvent(this)
 
-                    startRot = rotation
+                    startRot = mainView.rotation
                 }
                 MotionEvent.ACTION_MOVE -> {
 //                    if (status == Status.ONE_POINT) { // action 상태가 zoom 일 경우 zoomable view 위치 이동
 //                        val startFinger = PointF()
 //                        getRawPoint(event = event, index = ptrId1, point = startFinger)
 //                        midPoint.midPointOfEvent(sp = startFinger, fp = null)
-//
-////                        midPoint.midPointOfEvent(event = this)
 //                    } else if (status == Status.TWO_POINT) { // action 상태가 zoom 일 경우 zoomable view 위치 이동
 //                        val startFinger = PointF()
 //                        getRawPoint(event = event, index = ptrId1, point = startFinger)
@@ -161,9 +206,8 @@ class GestureCopyView @JvmOverloads constructor(
 //                        val finishFinger = PointF()
 //                        getRawPoint(event = event, index = ptrId2, point = finishFinger)
 //                        midPoint.midPointOfEvent(sp = startFinger, fp = finishFinger)
-//
-////                        midPoint.midPointOfEvent(event = this)
 //                    }
+
                     if (status == Status.ONE_POINT || status == Status.TWO_POINT)
                         midPoint.midPointOfEvent(event = this)
                 }
@@ -181,13 +225,9 @@ class GestureCopyView @JvmOverloads constructor(
 
             gestureDetector.onTouchEvent(this)
 
-            if (isScaleEnabled) {
-                scaleDetector.onTouchEvent(this)
-            }
-
-            if (isRotateEnabled)
-                rotateDetector.onTouchEvent(this)
-
+//            if (status == Status.TWO_POINT) {
+//                val
+//            }
         }
         return true
     }
