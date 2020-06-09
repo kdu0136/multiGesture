@@ -1,9 +1,9 @@
 package kim.dongun.multiGestureApplication
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.cardview.widget.CardView
 import kim.dongun.multiGesture.MultiGestureConfig
 import kim.dongun.multiGesture.TouchListener
@@ -15,11 +15,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val mainView = findViewById<CardView>(R.id.target)
+        val target = findViewById<CardView>(R.id.target)
 
         val gestureConfig = MultiGestureConfig()
 
-        ViewMultiGesture.Builder(target = mainView)
+        ViewMultiGesture.Builder(target = target)
             .gestureConfig(gestureConfig = gestureConfig)
             .touchListener(touchListener = object: TouchListener {
                 override fun onDoubleTouch(view: View) {
@@ -31,9 +31,26 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onSingleTouch(view: View) {
-                    Log.d("mainView", "coordinate: (${view.x}, ${view.y})")
-                    Log.d("mainView", "scaleX: ${view.scaleX} scaleY: ${view.scaleY}")
-                    Log.d("mainView", "rotation: ${view.rotation}")
+                }
+            })
+            .register()
+
+        val target2 = findViewById<AppCompatImageView>(R.id.target2)
+
+        val gestureConfig2 = MultiGestureConfig()
+
+        ViewMultiGesture.Builder(target = target2)
+            .gestureConfig(gestureConfig = gestureConfig2)
+            .touchListener(touchListener = object: TouchListener {
+                override fun onDoubleTouch(view: View) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onLongTouch(view: View) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onSingleTouch(view: View) {
                 }
             })
             .register()
