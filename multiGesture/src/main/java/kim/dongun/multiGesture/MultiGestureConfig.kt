@@ -1,4 +1,4 @@
-package kim.dongun.viewZoom
+package kim.dongun.multiGesture
 
 /**
  * MultiGesture Config class

@@ -1,13 +1,13 @@
-package kim.dongun.viewzoomapplication
+package kim.dongun.multiGestureApplication
 
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import kim.dongun.viewZoom.MultiGestureConfig
-import kim.dongun.viewZoom.TouchListener
-import kim.dongun.viewZoom.ViewMultiGesture
+import kim.dongun.multiGesture.MultiGestureConfig
+import kim.dongun.multiGesture.TouchListener
+import kim.dongun.multiGesture.ViewMultiGesture
 
 class MainActivity : AppCompatActivity() {
 

@@ -1,3 +1,3 @@
-include ':viewZoom'
+include ':multiGesture'
 include ':app'
-rootProject.name = "ViewZoomApplication"
+rootProject.name = "MultiGestureApplication"

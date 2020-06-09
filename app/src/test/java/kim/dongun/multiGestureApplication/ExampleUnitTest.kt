@@ -1,4 +1,4 @@
-package kim.dongun.viewzoomapplication
+package kim.dongun.multiGestureApplication
 
 import org.junit.Test
 
