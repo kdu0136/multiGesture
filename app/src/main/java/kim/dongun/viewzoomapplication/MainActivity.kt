@@ -1,31 +1,41 @@
 package kim.dongun.viewzoomapplication
 
 import android.os.Bundle
-import android.view.animation.OvershootInterpolator
-import android.widget.ImageView
+import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.RequestManager
-import com.bumptech.glide.request.RequestOptions
-import kim.dongun.viewZoom.ViewZoom
+import kim.dongun.viewZoom.MultiGestureConfig
+import kim.dongun.viewZoom.TouchListener
+import kim.dongun.viewZoom.ViewMultiGesture
 
 class MainActivity : AppCompatActivity() {
-    private val glideRequestManager: RequestManager by lazy { Glide.with(applicationContext) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val imageView = findViewById<ImageView>(R.id.imageView)
+        val mainView = findViewById<CardView>(R.id.target)
 
-        glideRequestManager
-                .load(R.drawable.sample)
-                .apply(RequestOptions().fitCenter())
-                .into(imageView)
+        val gestureConfig = MultiGestureConfig()
 
-        ViewZoom.Builder(context = this, target = imageView)
-                .interpolator(interpolator = OvershootInterpolator())
-                .register()
+        ViewMultiGesture.Builder(target = mainView)
+            .gestureConfig(gestureConfig = gestureConfig)
+            .touchListener(touchListener = object: TouchListener {
+                override fun onDoubleTouch(view: View) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onLongTouch(view: View) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun onSingleTouch(view: View) {
+                    Log.d("mainView", "coordinate: (${view.x}, ${view.y})")
+                    Log.d("mainView", "scaleX: ${view.scaleX} scaleY: ${view.scaleY}")
+                    Log.d("mainView", "rotation: ${view.rotation}")
+                }
+            })
+            .register()
     }
 }

@@ -1,17 +1,22 @@
 package kim.dongun.viewZoom
 
 import android.graphics.PointF
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
-import kotlin.math.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
-class RotationGestureDetector(private val listener: OnRotationGestureListener, private val view: View) {
+class RotationGestureDetector(
+    private val listener: OnRotationGestureListener,
+    private val view: View
+) {
     interface OnRotationGestureListener {
         fun onRotation(rotationDetector: RotationGestureDetector?): Boolean
     }
 
-    open class SimpleOnRotationGestureListener : OnRotationGestureListener {
+    open class SimpleOnRotationGestureListener :
+        OnRotationGestureListener {
         override fun onRotation(rotationDetector: RotationGestureDetector?): Boolean = false
     }
 
@@ -35,20 +40,21 @@ class RotationGestureDetector(private val listener: OnRotationGestureListener, p
             MotionEvent.ACTION_POINTER_DOWN -> {
                 ptrId2 = event.getPointerId(event.actionIndex)
 
-                getRawPoint(event = event, index = ptrId1, point = startFinger)
-                getRawPoint(event = event, index = ptrId2, point = finishFinger)
+                startFinger.getRawPoint(event = event, index = ptrId1)
+                finishFinger.getRawPoint(event = event, index = ptrId2)
             }
             MotionEvent.ACTION_MOVE -> {
                 if (ptrId1 != INVALID_POINTER_INDEX && ptrId2 != INVALID_POINTER_INDEX) {
                     val newStartFinger = PointF()
                     val newFinishFinger = PointF()
 
-                    getRawPoint(event = event, index = ptrId1, point = newStartFinger)
-                    getRawPoint(event = event, index = ptrId2, point = newFinishFinger)
+                    newStartFinger.getRawPoint(event = event, index = ptrId1)
+                    newFinishFinger.getRawPoint(event = event, index = ptrId2)
 
                     angle = angleBetweenLines(
                         oldStartFinger = startFinger, oldFinishFinger = finishFinger,
-                        newFStartFinger = newStartFinger, newFinishFinger = newFinishFinger)
+                        newFStartFinger = newStartFinger, newFinishFinger = newFinishFinger
+                    )
 
                     listener.onRotation(this)
                 }
@@ -67,7 +73,10 @@ class RotationGestureDetector(private val listener: OnRotationGestureListener, p
         return true
     }
 
-    private fun getRawPoint(event: MotionEvent, index: Int, point: PointF) {
+    /**
+     * set point value consider current view rotation
+     */
+    private fun PointF.getRawPoint(event: MotionEvent, index: Int) {
         val location = intArrayOf(0, 0)
         view.getLocationOnScreen(location)
 
@@ -81,17 +90,26 @@ class RotationGestureDetector(private val listener: OnRotationGestureListener, p
         x = (length * cos(Math.toRadians(angle))).toFloat() + location[0]
         y = (length * sin(Math.toRadians(angle))).toFloat() + location[1]
 
-        point.set(x, y)
+        set(x, y)
     }
 
+    /**
+     * return angle between two lines
+     */
     private fun angleBetweenLines(
         oldStartFinger: PointF,
         oldFinishFinger: PointF,
         newFStartFinger: PointF,
         newFinishFinger: PointF
     ): Float {
-        val angle1 = atan2((oldFinishFinger.y - oldStartFinger.y), (oldFinishFinger.x - oldStartFinger.x)).toDouble()
-        val angle2 = atan2((newFinishFinger.y - newFStartFinger.y), (newFinishFinger.x - newFStartFinger.x)).toDouble()
+        val angle1 = atan2(
+            (oldFinishFinger.y - oldStartFinger.y),
+            (oldFinishFinger.x - oldStartFinger.x)
+        ).toDouble()
+        val angle2 = atan2(
+            (newFinishFinger.y - newFStartFinger.y),
+            (newFinishFinger.x - newFStartFinger.x)
+        ).toDouble()
 
         var angle = (Math.toDegrees(angle1 - angle2).toFloat()) % 360
         if (angle < -180f) angle += 360f
