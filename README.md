@@ -6,7 +6,7 @@ A multi gesture(move, rotate, scale) compatible with [View](https://developer.an
 
 # Setup
 
-__Step 1.__ Add the JitPack re``pository to your build file
+__Step 1.__ Add the JitPack repository to your build file
 ```groovy
 allprojects {
   repositories {
