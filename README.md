@@ -4,6 +4,8 @@ View Multi Gesture
 =============
 A multi gesture(move, rotate, scale) compatible with [View](https://developer.android.com/reference/android/view/View).
 
+![Alt Text](./multiGesture.gif)
+
 # Setup
 
 __Step 1.__ Add the JitPack repository to your build file
