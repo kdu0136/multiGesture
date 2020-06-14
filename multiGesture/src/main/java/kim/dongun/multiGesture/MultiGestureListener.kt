@@ -17,7 +17,8 @@ import kotlin.math.sin
 class MultiGestureListener(
     private val target: View,
     private val gestureConfig: MultiGestureConfig,
-    private val touchListener: TouchListener?
+    private val touchListener: TouchListener?,
+    private val transformListener: TransformListener?
 ) : View.OnTouchListener {
     private enum class State { IDLE, ONE_POINT, TWO_POINT } // action 상태
 
@@ -66,6 +67,8 @@ class MultiGestureListener(
 
                     target.x += rotateMidPoint.x - rotateInitPoint.x
                     target.y += rotateMidPoint.y - rotateInitPoint.y
+
+                    transformListener?.onMove(view = target)
                 }
                 return false
             }
@@ -83,6 +86,8 @@ class MultiGestureListener(
 
                     target.scaleX = scaleFactor
                     target.scaleY = scaleFactor
+
+                    transformListener?.onScale(view = target)
                 }
                 return false
             }
@@ -93,6 +98,7 @@ class MultiGestureListener(
             override fun onRotation(rotationDetector: RotationGestureDetector?): Boolean {
                 if (rotationDetector != null && state == State.TWO_POINT) {
                     target.rotation = startRot - rotationDetector.getAngle()
+                    transformListener?.onRotate(view = target)
                 }
                 return false
             }
@@ -135,6 +141,8 @@ class MultiGestureListener(
             MotionEvent.ACTION_DOWN -> {
                 state = State.ONE_POINT
                 initMidPoint.midPointOfEvent(event = event)
+
+                touchListener?.onStartTouch(view = target)
             }
             MotionEvent.ACTION_POINTER_DOWN -> {
                 state = State.TWO_POINT
@@ -150,12 +158,12 @@ class MultiGestureListener(
             MotionEvent.ACTION_UP,
             MotionEvent.ACTION_CANCEL -> { // 한개 또는 두개 포인트에 대한 up 또는 액션 cancel
                 when (state) {
-                    State.IDLE -> {
-                    }
+                    State.IDLE -> { }
                     State.ONE_POINT,
                     State.TWO_POINT -> state =
                         State.IDLE
                 }
+                touchListener?.onEndTouch(view = target)
             }
         }
 

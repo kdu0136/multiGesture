@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.cardview.widget.CardView
 import kim.dongun.multiGesture.MultiGestureConfig
 import kim.dongun.multiGesture.TouchListener
+import kim.dongun.multiGesture.TransformListener
 import kim.dongun.multiGesture.ViewMultiGesture
 
 class MainActivity : AppCompatActivity() {
@@ -22,16 +23,22 @@ class MainActivity : AppCompatActivity() {
         ViewMultiGesture.Builder(target = target)
             .gestureConfig(gestureConfig = gestureConfig)
             .touchListener(touchListener = object: TouchListener {
-                override fun onDoubleTouch(view: View) {
-                    TODO("Not yet implemented")
-                }
+                override fun onDoubleTouch(view: View) {}
 
-                override fun onLongTouch(view: View) {
-                    TODO("Not yet implemented")
-                }
+                override fun onLongTouch(view: View) {}
 
-                override fun onSingleTouch(view: View) {
-                }
+                override fun onSingleTouch(view: View) {}
+
+                override fun onStartTouch(view: View) {}
+
+                override fun onEndTouch(view: View) {}
+            })
+            .transformListener(transformListener = object: TransformListener {
+                override fun onMove(view: View) {}
+
+                override fun onScale(view: View) {}
+
+                override fun onRotate(view: View) {}
             })
             .register()
     }

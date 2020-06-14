@@ -16,6 +16,7 @@ object ViewMultiGesture {
         private var gestureConfig: MultiGestureConfig =
             MultiGestureConfig()
         private var touchListener: TouchListener? = null
+        private var transformListener: TransformListener? = null
 
         /**
          * register multi gesture config
@@ -40,6 +41,16 @@ object ViewMultiGesture {
         }
 
         /**
+         * register transform listener
+         */
+        fun transformListener(transformListener: TransformListener): Builder {
+            checkNotDisposed()
+            this.transformListener = transformListener
+
+            return this
+        }
+
+        /**
          * register multi gesture view
          */
         fun register() {
@@ -48,7 +59,8 @@ object ViewMultiGesture {
                 MultiGestureListener(
                     target = target,
                     gestureConfig = gestureConfig,
-                    touchListener = touchListener
+                    touchListener = touchListener,
+                    transformListener = transformListener
                 )
             )
             disposed = true
